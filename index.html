@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LOGO FINDER — Company Logo Search</title>
+  
+  <!-- App Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23090d16'/%3E%3Cstop offset='100%25' stop-color='%231e293b'/%3E%3C/linearGradient%3E%3ClinearGradient id='accent' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2338bdf8'/%3E%3Cstop offset='100%25' stop-color='%232563eb'/%3E%3C/linearGradient%3E%3ClinearGradient id='lens' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2360a5fa' stop-opacity='0.22'/%3E%3Cstop offset='100%25' stop-color='%233b82f6' stop-opacity='0.04'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23bg)'/%3E%3Crect x='1.5' y='1.5' width='61' height='61' rx='14.5' fill='none' stroke='%23334155' stroke-width='1.5'/%3E%3Ccircle cx='28' cy='28' r='14' fill='url(%23lens)' stroke='url(%23accent)' stroke-width='3.5'/%3E%3Cpath d='M28 19 L34 28 L28 37 L22 28 Z' fill='none' stroke='%2338bdf8' stroke-width='2' stroke-linejoin='round'/%3E%3Ccircle cx='28' cy='28' r='2.5' fill='%2367e8f9'/%3E%3Cpath d='M38.5 38.5 L50.5 50.5' stroke='url(%23accent)' stroke-width='4' stroke-linecap='round'/%3E%3Ccircle cx='23' cy='23' r='1.5' fill='%23ffffff'/%3E%3C/svg%3E">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              100: '#e0effe',
+              500: '#0284c7',
+              600: '#0369a1',
+              700: '#075985',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f8fafc; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    .modal-backdrop { transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+    .modal-panel { transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+    .modal-hidden { opacity: 0; pointer-events: none; }
+    .modal-hidden .modal-panel { transform: scale(0.96) translateY(8px); }
+
+    .checkerboard-bg {
+      background-color: #ffffff;
+      background-image: 
+        linear-gradient(45deg, #f8fafc 25%, transparent 25%), 
+        linear-gradient(-45deg, #f8fafc 25%, transparent 25%), 
+        linear-gradient(45deg, transparent 75%, #f8fafc 75%), 
+        linear-gradient(-45deg, transparent 75%, #f8fafc 75%);
+      background-size: 14px 14px;
+      background-position: 0 0, 0 7px, 7px -7px, -7px 0px;
+    }
+
+    .logo-card-premium {
+      transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.22s ease;
+      will-change: transform;
+    }
+    .logo-card-premium:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 14px 28px -6px rgba(15, 23, 42, 0.08), 0 8px 12px -4px rgba(15, 23, 42, 0.03);
+    }
+    @keyframes spin-sync {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .spinning { animation: spin-sync 0.85s linear infinite; }
+  </style>
+</head>
+<body class="bg-[#fcfdfd] text-slate-800 font-sans min-h-screen flex flex-col selection:bg-sky-100 selection:text-sky-900 antialiased">
+
+  <!-- Top Navigation & Branding -->
+  <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center space-x-3 select-none">
+        <div class="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 text-white flex items-center justify-center shadow-sm p-1.5 flex-shrink-0">
+          <svg class="w-full h-full" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="17.5" cy="17.5" r="9" stroke="url(#hdr-grad)" stroke-width="2.5" />
+            <path d="M17.5 12L21.5 17.5L17.5 23L13.5 17.5Z" stroke="#38bdf8" stroke-width="1.5" stroke-linejoin="round" />
+            <circle cx="17.5" cy="17.5" r="1.5" fill="#67e8f9" />
+            <path d="M24 24L32 32" stroke="url(#hdr-grad)" stroke-width="2.8" stroke-linecap="round" />
+            <defs>
+              <linearGradient id="hdr-grad" x1="8" y1="8" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#38bdf8" />
+                <stop offset="1" stop-color="#2563eb" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div>
+          <span class="text-base font-extrabold tracking-tight font-display text-slate-900">LOGO FINDER</span>
+          <span class="hidden md:inline-block ml-2 text-xs font-medium text-slate-400 border-l border-slate-200 pl-2">5-Tab Live Directory</span>
+        </div>
+      </div>
+
+      <!-- Sync Status & Header Actions -->
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        <!-- Live Sync Pill -->
+        <div id="sync-status-badge" class="flex items-center space-x-2 px-2.5 sm:px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-medium text-slate-600 transition-colors">
+          <span id="sync-status-dot" class="w-2 h-2 rounded-full bg-slate-400"></span>
+          <span id="sync-status-text" class="truncate max-w-[130px] sm:max-w-none">Checking status...</span>
+        </div>
+
+        <!-- Sync Now Button -->
+        <button
+          id="sync-now-btn"
+          type="button"
+          class="inline-flex items-center justify-center p-2 sm:px-3 sm:py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-brand-500/20 active:scale-95"
+          title="Synchronize all 5 Google Sheet tabs immediately"
+          aria-label="Synchronize all 5 tabs"
+        >
+          <svg id="sync-icon" class="w-3.5 h-3.5 sm:mr-1.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+          <span class="hidden sm:inline">Sync Now</span>
+        </button>
+
+        <!-- Diagnostics Inspector Button -->
+        <button
+          id="open-diagnostics-btn"
+          type="button"
+          class="inline-flex items-center justify-center p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+          title="Open Google Sheet 5-Tab Diagnostics"
+          aria-label="View Diagnostics"
+        >
+          <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+          </svg>
+        </button>
+
+        <!-- Sheet Settings Button -->
+        <button
+          id="open-settings-btn"
+          type="button"
+          class="inline-flex items-center justify-center p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+          title="Configure Google Sheet and Tabs"
+          aria-label="Connection Settings"
+        >
+          <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+  <!-- Main Content Area -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col">
+    
+    <!-- Hero Title & Search Area -->
+    <section class="max-w-2xl mx-auto w-full mb-8 text-center">
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight font-display text-slate-900 mb-2">
+        Search Less. <span class="bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent">Find Faster.</span>
+      </h1>
+      <p class="text-sm sm:text-base font-medium text-slate-500 mb-6 font-display">
+        Find It. Copy It. Done.
+      </p>
+
+      <!-- Search Input Container -->
+      <div class="relative group">
+        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-sky-600 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </div>
+        <input
+          id="search-input"
+          type="text"
+          autocomplete="off"
+          placeholder="Search company name... (e.g. ADT, Vivint, Quicken Loans)"
+          class="w-full pl-11 pr-24 py-3.5 bg-white border border-slate-200 rounded-2xl text-base text-slate-900 placeholder:text-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-600 transition-all"
+        />
+        <div class="absolute inset-y-0 right-0 pr-2.5 flex items-center space-x-1.5">
+          <button
+            id="clear-search-btn"
+            type="button"
+            class="hidden p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+            title="Clear search query"
+            aria-label="Clear search"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+          <kbd class="hidden md:inline-flex items-center px-2 py-1 text-[11px] font-semibold text-slate-400 bg-slate-100 border border-slate-200 rounded-lg select-none pointer-events-none">
+            /
+          </kbd>
+        </div>
+      </div>
+
+      <!-- Quick Filter & Counter Row -->
+      <div class="mt-3.5 flex flex-wrap items-center justify-between text-xs text-slate-500 px-1 gap-2">
+        <div class="flex items-center space-x-2">
+          <span id="results-count-text">Loading catalog...</span>
+          <span id="source-indicator" class="hidden text-[11px] px-2 py-0.5 rounded-full font-medium"></span>
+        </div>
+        <div class="flex items-center space-x-3">
+          <button
+            id="show-all-btn"
+            type="button"
+            class="text-sky-600 hover:text-sky-700 font-semibold hover:underline focus:outline-none"
+          >
+            Reset & Show All
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Logo Cards Responsive Grid -->
+    <section aria-label="Logo Directory Gallery" class="w-full flex-1">
+      <div
+        id="logo-grid"
+        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3.5 sm:gap-4"
+      >
+        <!-- Cards dynamically injected via JavaScript -->
+      </div>
+      <!-- Empty State -->
+      <div id="empty-state" class="hidden flex-col items-center justify-center py-20 px-4 text-center">
+        <div class="w-14 h-14 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 mb-3 shadow-inner">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <h3 class="text-base font-bold text-slate-800 mb-1">No logos found</h3>
+        <p class="text-sm text-slate-500 max-w-sm mb-4" id="empty-query-text">
+          We couldn't find any logos matching your criteria.
+        </p>
+        <button
+          id="empty-reset-btn"
+          type="button"
+          class="px-4 py-2 bg-slate-900 text-white hover:bg-slate-800 rounded-xl text-xs font-semibold tracking-wide transition-colors"
+        >
+          Clear search query
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Clean Minimal Footer -->
+  <footer class="border-t border-slate-200/80 bg-white py-5 mt-12 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div class="flex items-center space-x-2">
+        <span class="font-bold font-display text-slate-800">LOGO FINDER</span>
+        <span>— Multi-Tab Google Sheet Synced Directory</span>
+      </div>
+      <div class="flex items-center space-x-4">
+        <button id="footer-diagnostics-btn" type="button" class="text-slate-500 hover:text-sky-600 hover:underline">
+          Tab Diagnostics
+        </button>
+        <button id="footer-settings-btn" type="button" class="text-slate-500 hover:text-sky-600 hover:underline">
+          Connection Settings
+        </button>
+      </div>
+    </div>
+  </footer>
+  <!-- Logo Detail Modal -->
+  <div
+    id="logo-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-title"
+    class="modal-backdrop modal-hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
+  >
+    <div class="modal-panel bg-white w-full max-w-lg rounded-2xl border border-slate-200 shadow-2xl overflow-hidden relative">
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+        <div class="flex items-center space-x-2 truncate pr-4">
+          <h2 id="modal-title" class="text-lg font-bold text-slate-900 truncate">
+            Company Name
+          </h2>
+          <span id="modal-tab-badge" class="text-[10px] bg-slate-100 text-slate-600 font-mono px-2 py-0.5 rounded-full border border-slate-200"></span>
+        </div>
+        <button
+          id="modal-close-btn"
+          type="button"
+          class="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition-colors focus:outline-none"
+          aria-label="Close dialog"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-6">
+        <!-- Logo Large View Area with adaptive background -->
+        <div id="modal-img-container" class="w-full h-56 rounded-xl border border-slate-200/90 checkerboard-bg flex items-center justify-center p-6 relative overflow-hidden group">
+          <img
+            id="modal-logo-img"
+            src=""
+            alt=""
+            class="max-w-full max-h-full object-contain select-none transition-transform duration-300 group-hover:scale-105"
+          />
+          <div id="modal-img-fallback" class="hidden flex-col items-center justify-center text-slate-400 text-xs">
+            <svg class="w-10 h-10 mb-2 stroke-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <span>Unable to preview logo image</span>
+          </div>
+        </div>
+
+        <!-- URL Field & Quick Copy -->
+        <div class="space-y-1.5">
+          <label for="modal-url-input" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider">
+            Direct Hosted Logo URL
+          </label>
+          <div class="flex items-center rounded-xl border border-slate-200 bg-slate-50 focus-within:border-sky-500 focus-within:ring-1 focus-within:ring-sky-500 overflow-hidden">
+            <input
+              id="modal-url-input"
+              type="text"
+              readonly
+              class="w-full px-3.5 py-2.5 text-xs font-mono text-slate-700 bg-transparent border-none focus:outline-none select-all"
+            />
+            <button
+              id="modal-quick-copy-btn"
+              type="button"
+              class="px-3.5 py-2.5 text-xs font-semibold text-slate-600 hover:text-sky-600 hover:bg-slate-100 border-l border-slate-200 transition-colors whitespace-nowrap"
+            >
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2">
+          <button
+            id="modal-copy-btn"
+            type="button"
+            class="w-full inline-flex items-center justify-center px-4 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-semibold tracking-wide hover:bg-slate-800 active:scale-[0.98] transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-900/20"
+          >
+            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
+            </svg>
+            <span id="copy-btn-text">Copy Link</span>
+          </button>
+
+          <a
+            id="modal-open-link"
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="w-full inline-flex items-center justify-center px-4 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl text-xs font-semibold tracking-wide hover:bg-slate-50 hover:text-slate-900 active:scale-[0.98] transition-all"
+          >
+            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+            </svg>
+            Open Tab
+          </a>
+
+          <button
+            id="modal-download-btn"
+            type="button"
+            class="w-full inline-flex items-center justify-center px-4 py-2.5 bg-sky-50 border border-sky-100 text-sky-700 rounded-xl text-xs font-semibold tracking-wide hover:bg-sky-100/70 active:scale-[0.98] transition-all"
+          >
+            <svg class="w-4 h-4 mr-1.5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+            </svg>
+            <span id="download-btn-text">Download Asset</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 5-Tab Diagnostics Modal -->
+  <div
+    id="diagnostics-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="diag-title"
+    class="modal-backdrop modal-hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
+  >
+    <div class="modal-panel bg-white w-full max-w-2xl rounded-2xl border border-slate-200 shadow-2xl overflow-hidden relative max-h-[90vh] flex flex-col">
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <div class="w-3 h-3 rounded-full bg-sky-500"></div>
+          <h2 id="diag-title" class="text-base font-bold text-slate-900">
+            Google Sheet 5-Tab Diagnostics
+          </h2>
+        </div>
+        <button
+          id="diag-close-btn"
+          type="button"
+          class="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-5 overflow-y-auto text-xs">
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+            <div class="text-[10px] text-slate-500 font-medium">Combined Logos</div>
+            <div id="diag-total-valid" class="text-lg font-extrabold text-slate-900 mt-0.5">0</div>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+            <div class="text-[10px] text-slate-500 font-medium">Active Source</div>
+            <div id="diag-active-source" class="text-xs font-bold text-slate-900 mt-1 truncate">Checking...</div>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+            <div class="text-[10px] text-slate-500 font-medium">True Duplicates</div>
+            <div id="diag-duplicates-removed" class="text-lg font-extrabold text-slate-900 mt-0.5">0</div>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+            <div class="text-[10px] text-slate-500 font-medium">Excluded / Malformed</div>
+            <div id="diag-excluded-count" class="text-lg font-extrabold text-slate-900 mt-0.5">0</div>
+          </div>
+        </div>
+
+        <!-- Per-Tab Breakdown Table -->
+        <div class="border border-slate-200 rounded-xl overflow-hidden">
+          <div class="bg-slate-50 px-3 py-2 border-b border-slate-200 font-semibold text-slate-700 flex justify-between items-center">
+            <span>Per-Tab Records Breakdown</span>
+            <span class="text-[10px] font-normal text-slate-500">Updated on each sync</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50/50 border-b border-slate-200 text-[10px] text-slate-500">
+                  <th class="p-2.5 font-medium">Tab Name</th>
+                  <th class="p-2.5 font-medium">Status</th>
+                  <th class="p-2.5 font-medium">Rows Fetched</th>
+                  <th class="p-2.5 font-medium">Valid Logos</th>
+                  <th class="p-2.5 font-medium">Issues</th>
+                </tr>
+              </thead>
+              <tbody id="diag-tabs-table-body" class="divide-y divide-slate-100 font-mono text-[11px]">
+                <!-- Injected via JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Connection Details Info -->
+        <div class="space-y-2">
+          <div class="text-[11px] font-semibold text-slate-700 uppercase tracking-wider">Sheet Connection Configuration</div>
+          <div class="p-3 rounded-xl bg-slate-900 text-slate-200 font-mono text-[11px] space-y-1 overflow-x-auto select-all">
+            <div><span class="text-sky-400">Master URL:</span> <span id="diag-conf-url" class="text-slate-300"></span></div>
+            <div><span class="text-sky-400">Tabs Configured:</span> <span id="diag-conf-tabs" class="text-slate-300"></span></div>
+            <div><span class="text-sky-400">Column Mappings:</span> Name (Column B) &bull; Logo Link (Column C)</div>
+            <div><span class="text-sky-400">Last Synced At:</span> <span id="diag-last-sync-time" class="text-slate-300">Never</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
+        <button
+          id="diag-sync-trigger"
+          type="button"
+          class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white font-semibold rounded-xl text-xs transition-colors shadow-sm"
+        >
+          Re-test All Tabs Now
+        </button>
+        <button
+          id="diag-close-footer-btn"
+          type="button"
+          class="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-semibold rounded-xl text-xs transition-colors"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- Connection Settings Modal -->
+  <div
+    id="settings-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="settings-title"
+    class="modal-backdrop modal-hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
+  >
+    <div class="modal-panel bg-white w-full max-w-lg rounded-2xl border border-slate-200 shadow-2xl overflow-hidden relative max-h-[90vh] flex flex-col">
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+        <h2 id="settings-title" class="text-base font-bold text-slate-900">
+          Google Sheet 5-Tab Settings
+        </h2>
+        <button
+          id="settings-close-btn"
+          type="button"
+          class="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4 overflow-y-auto text-xs">
+        <div>
+          <label for="cfg-master-url" class="block font-semibold text-slate-700 mb-1">
+            Google Spreadsheet Link (Master URL)
+          </label>
+          <input
+            id="cfg-master-url"
+            type="text"
+            placeholder="https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit..."
+            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 font-mono"
+          />
+          <p class="text-[11px] text-slate-500 mt-1">
+            Ensure the sheet is set to <span class="font-semibold text-slate-700">"Anyone with the link can view"</span>.
+          </p>
+        </div>
+
+        <div class="border-t border-slate-200 pt-3 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="font-semibold text-slate-800">Individual Tab GIDs / Published Links (Optional)</span>
+            <span class="text-[10px] text-slate-400">Leave blank to use sheet name</span>
+          </div>
+          <p class="text-[11px] text-slate-500">
+            If your sheet is published to the web or uses individual GIDs, enter them below:
+          </p>
+
+          <div class="space-y-2 font-mono">
+            <div>
+              <label class="block text-[10px] text-slate-600 font-sans font-semibold mb-0.5">Tab 1: AD CAMPAIGNS (gid or full CSV url)</label>
+              <input id="cfg-gid-ad" type="text" placeholder="e.g. 0" class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs" />
+            </div>
+            <div>
+              <label class="block text-[10px] text-slate-600 font-sans font-semibold mb-0.5">Tab 2: XC (gid or full CSV url)</label>
+              <input id="cfg-gid-xc" type="text" placeholder="e.g. 1423589" class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs" />
+            </div>
+            <div>
+              <label class="block text-[10px] text-slate-600 font-sans font-semibold mb-0.5">Tab 3: GZ (gid or full CSV url)</label>
+              <input id="cfg-gid-gz" type="text" placeholder="e.g. 2938472" class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs" />
+            </div>
+            <div>
+              <label class="block text-[10px] text-slate-600 font-sans font-semibold mb-0.5">Tab 4: ES CAMPAIGNS (gid or full CSV url)</label>
+              <input id="cfg-gid-es" type="text" placeholder="e.g. 8492011" class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs" />
+            </div>
+            <div>
+              <label class="block text-[10px] text-slate-600 font-sans font-semibold mb-0.5">Tab 5: MI CAMPAIGNS (gid or full CSV url)</label>
+              <input id="cfg-gid-mi" type="text" placeholder="e.g. 5938201" class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
+        <button
+          id="settings-reset-defaults"
+          type="button"
+          class="text-xs text-slate-500 hover:text-slate-800 font-semibold"
+        >
+          Reset Defaults
+        </button>
+        <div class="flex items-center space-x-2">
+          <button
+            id="settings-cancel-btn"
+            type="button"
+            class="px-3.5 py-2 border border-slate-200 bg-white hover:bg-slate-100 rounded-xl text-xs font-semibold text-slate-700"
+          >
+            Cancel
+          </button>
+          <button
+            id="settings-save-btn"
+            type="button"
+            class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-semibold shadow-sm"
+          >
+            Save & Sync
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification System -->
+  <div
+    id="toast"
+    role="status"
+    aria-live="polite"
+    class="fixed bottom-6 right-6 z-50 transform translate-y-12 opacity-0 pointer-events-none transition-all duration-300 ease-out flex items-center space-x-2.5 bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-xl text-xs font-medium"
+  >
+    <div id="toast-icon-success" class="text-emerald-400">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+      </svg>
+    </div>
+    <div id="toast-icon-info" class="hidden text-sky-400">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+    </div>
+    <span id="toast-message">Notification message</span>
+  </div>
+  <script>
+    /**
+     * =========================================================================
+     * FULL 146-ITEM SEED REPOSITORY ORGANIZED BY SHEET TABS (#1–#146)
+     * =========================================================================
+     */
+    const FULL_CATALOG_SEEDS = [
+      // TAB 1: AD CAMPAIGNS (#1–#54)
+      { id: 1, name: "AHS", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/e94ca506-f086-48e9-8118-dae8fcb615e7.png", tab: "AD CAMPAIGNS" },
+      { id: 2, name: "VIVINT BLACK", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/0a9ba188-e6ae-4cef-bca6-aa6661cd5756.png", tab: "AD CAMPAIGNS" },
+      { id: 3, name: "AARP", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/4f698451-3e8c-4ccc-bb4b-bc41bd345483.png", tab: "AD CAMPAIGNS" },
+      { id: 4, name: "ADT", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/61e83ed1-1424-44ac-ab67-63bd737dfbf9.png", tab: "AD CAMPAIGNS" },
+      { id: 5, name: "APTIVE", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/a75bd89c-113f-4b19-8709-bfc798b95edc.png", tab: "AD CAMPAIGNS" },
+      { id: 6, name: "ARW", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/b9e68228-420b-42ec-9aee-3e7d93283e98.png", tab: "AD CAMPAIGNS" },
+      { id: 7, name: "BAI", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/86b37dc1-7618-4421-b938-52cee6075c44.png", tab: "AD CAMPAIGNS" },
+      { id: 8, name: "BRINKS", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/5329323f-2ec3-4c4f-a2b7-7beb12a00874.png", tab: "AD CAMPAIGNS" },
+      { id: 9, name: "CIM", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/4c3f3f86-6f86-48da-84d5-b7f7b05b6042.png", tab: "AD CAMPAIGNS" },
+      { id: 10, name: "CSD", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/559e78a8-7e9c-49df-a255-4899f868d1e8.png", tab: "AD CAMPAIGNS" },
+      { id: 11, name: "CHW", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/c2dc5c06-405d-4bc5-b49c-fc631fe08622.png", tab: "AD CAMPAIGNS" },
+      { id: 12, name: "ALC", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/d14651a1-e9de-4aa1-bbf1-4b4338e153d2.png", tab: "AD CAMPAIGNS" },
+      { id: 13, name: "EF", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/7e259b11-b0c9-49b0-bd6b-f72cfadcd238.png", tab: "AD CAMPAIGNS" },
+      { id: 14, name: "EAC", url: "https://image.s1.sfmc-content.com/lib/fe25117271640474701c79/m/1/040d21e4-be29-4e30-861e-31f2d0f5dfae.png", tab: "AD CAMPAIGNS" },
+      { id: 15, name: "EH", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/88256272-5654-42de-9e4c-9ffb4f321540.png", tab: "AD CAMPAIGNS" },
+      { id: 16, name: "FPHW", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/84641ed6-3a72-417c-8081-8221a49dc153.png", tab: "AD CAMPAIGNS" },
+      { id: 17, name: "HEAR", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/885a881a-fd98-4566-81d5-e052c69227c7.png", tab: "AD CAMPAIGNS" },
+      { id: 18, name: "ICO", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/b8eede0d-5c94-456b-b700-0a7cb8451325.png", tab: "AD CAMPAIGNS" },
+      { id: 19, name: "JG WENT", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/5239ce39-42a1-4c31-a396-ce535c4c107f.png", tab: "AD CAMPAIGNS" },
+      { id: 20, name: "KWB", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/2e26c9f9-41c6-4534-b751-ad0cac63c70d.png", tab: "AD CAMPAIGNS" },
+      { id: 21, name: "LASERWAY", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/b0500cbf-1cc3-4797-87bf-2b5ac32a1262.png", tab: "AD CAMPAIGNS" },
+      { id: 22, name: "LHN", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/c8ed3011-16f9-4cbb-afbd-829ab8a42390.png", tab: "AD CAMPAIGNS" },
+      { id: 23, name: "LEAF FILTER", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/4041e73a-5de0-45f5-af2a-4082821877a7.png", tab: "AD CAMPAIGNS" },
+      { id: 24, name: "HEC", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/9d258e1e-440a-4d1b-b325-c22feb03c03f.png", tab: "AD CAMPAIGNS" },
+      { id: 25, name: "NDR", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/f93f48d1-fae8-47d7-abc4-7aca74c940e0.png", tab: "AD CAMPAIGNS" },
+      { id: 26, name: "NDR WHITE", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/e7b9e0c0-27b9-4551-a6ce-b5295e3ed80f.png", tab: "AD CAMPAIGNS" },
+      { id: 27, name: "NERDWALLET", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/3d8434ce-2b4e-4af7-a510-81e27a5e838a.png", tab: "AD CAMPAIGNS" },
+      { id: 28, name: "OTF", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/c0e45ae6-3777-4b9c-8907-b884124f6bd0.png", tab: "AD CAMPAIGNS" },
+      { id: 29, name: "PA", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/3b0750af-5127-4a32-b71d-5127a5d714ca.png", tab: "AD CAMPAIGNS" },
+      { id: 30, name: "QL", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/aa69f926-3270-4bc4-8292-302bc7e4e9bd.png", tab: "AD CAMPAIGNS" },
+      { id: 31, name: "RCPL", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/c9aff1fa-4e02-4afe-adf9-51dee33e9094.png", tab: "AD CAMPAIGNS" },
+      { id: 32, name: "RBA", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/4371fa20-9355-4ec9-87b2-8b698f22751a.png", tab: "AD CAMPAIGNS" },
+      { id: 33, name: "RYH", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/7e4e2177-235a-4af0-a917-0e3297f34e7b.png", tab: "AD CAMPAIGNS" },
+      { id: 34, name: "RGR WHITE", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/3a5eb620-8712-42f9-a1a9-23e26d67e314.png", tab: "AD CAMPAIGNS" },
+      { id: 35, name: "ROOF SAVING", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/305b55db-ea2f-4cfa-8268-c7cbf66e3591.png", tab: "AD CAMPAIGNS" },
+      { id: 36, name: "SBLI", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/8317c11d-fcb1-4030-aed5-9f149371ac60.png", tab: "AD CAMPAIGNS" },
+      { id: 37, name: "SAQ", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/f89b03bf-9d78-4f96-893d-520c902b5be8.png", tab: "AD CAMPAIGNS" },
+      { id: 38, name: "SDO", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/7e51f7b0-c2ae-47db-80b7-3cade72def99.png", tab: "AD CAMPAIGNS" },
+      { id: 39, name: "TRUGREEN", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/96b8c49c-0932-46dd-b0ea-b8536bf3b54c.png", tab: "AD CAMPAIGNS" },
+      { id: 40, name: "WPI", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/9e61c93b-ca02-45a8-b404-7dd582fe9f0f.png", tab: "AD CAMPAIGNS" },
+      { id: 41, name: "WS", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/5a63583b-8f7b-4207-b44b-c5efb4bbee1c.png", tab: "AD CAMPAIGNS" },
+      { id: 42, name: "SS", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/d13db449-f020-4028-814a-453cbc0176c3.png", tab: "AD CAMPAIGNS" },
+      { id: 43, name: "FDR", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/dd645162-0aea-4ba9-9627-9b570ba4d397.png", tab: "AD CAMPAIGNS" },
+      { id: 44, name: "FLI", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/f1395be8-dce3-4754-8542-5e2d42a9a6e8.png", tab: "AD CAMPAIGNS" },
+      { id: 45, name: "RGR", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/fbadf136-9f01-4004-990d-215c71e39396.png", tab: "AD CAMPAIGNS" },
+      { id: 46, name: "WPI WHITE", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/4ffda4a7-d99c-490d-afc8-6825875e6d5c.png", tab: "AD CAMPAIGNS" },
+      { id: 47, name: "ADT WHITE in", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/e9a041b6-896a-4382-ad5a-e74ff0271c1f.png", tab: "AD CAMPAIGNS" },
+      { id: 48, name: "BH", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/d9356c0c-80e3-4f92-a272-183b484a8fe7.png", tab: "AD CAMPAIGNS" },
+      { id: 49, name: "VIVINT WHITE", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/015e508b-e2de-49d5-bebc-48f551d92ecd.png", tab: "AD CAMPAIGNS" },
+      { id: 50, name: "RYH WHITE", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/46cd34dc-1026-4d89-bca5-e1ff3d0389f8.png", tab: "AD CAMPAIGNS" },
+      { id: 51, name: "EAC WHITE", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/39802d36-57bb-4cc5-ac60-f5733773c53c.png", tab: "AD CAMPAIGNS" },
+      { id: 52, name: "LF", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/27c54e6c-952f-47b8-ade3-8dd3312c668b.png", tab: "AD CAMPAIGNS" },
+      { id: 53, name: "SBLI WHITE", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/c7411e88-7339-4563-9bea-4c5592c13ef5.png", tab: "AD CAMPAIGNS" },
+      { id: 54, name: "SBLI", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/70990101-826d-4993-b446-770928752d7e.png", tab: "AD CAMPAIGNS" },
+
+      // TAB 2: XC (#55–#78)
+      { id: 55, name: "AUDIEN ATOM 2 AA2", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/f451ccd3-b361-4f8a-83b2-2945007a1b96.png", tab: "XC" },
+      { id: 56, name: "KERANIQUE KQ", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/a56a16fe-fb32-457a-92da-10627d95af85.png", tab: "XC" },
+      { id: 57, name: "QHI", url: "https://image.s1.sfmc-content.com/lib/fe25117271640474701c79/m/1/3edd4773-ae88-4aab-8fcd-a59093efc363.png", tab: "XC" },
+      { id: 58, name: "LBH", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/f44cc8c3-ad97-4000-bb8b-221fc1778b6a.png", tab: "XC" },
+      { id: 59, name: "ELI", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/f1e8e8f1-b470-47b9-bc33-98928487fff0.png", tab: "XC" },
+      { id: 60, name: "FEC", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/866548cf-30e0-44ff-8914-09a784bdbaac.png", tab: "XC" },
+      { id: 61, name: "LFV", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/17a6adca-2823-4958-98c6-d864c9d1db92.png", tab: "XC" },
+      { id: 62, name: "CAC", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/499f3db7-7abf-4a4f-83d0-eefe5bae855b.png", tab: "XC" },
+      { id: 63, name: "CHI", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/41600e94-a3ef-4663-823b-b0a562f213a1.png", tab: "XC" },
+      { id: 64, name: "ASI", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/bbc5777c-f49e-4a0f-94c3-b52e2dc40327.png", tab: "XC" },
+      { id: 65, name: "EBC", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/05fe63eb-f832-40c7-aac8-a0ca989e1e2f.png", tab: "XC" },
+      { id: 66, name: "VPH", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/dbbe8226-bbf0-47c4-b752-8c471c286416.png", tab: "XC" },
+      { id: 67, name: "IMC", url: "https://image.s1.sfmc-content.com/lib/fe25117271640474701c79/m/1/e9005046-766c-45c3-91b1-4bbe82f4e918.png", tab: "XC" },
+      { id: 68, name: "QAI", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/9705d612-7fcf-48d8-afc5-16f9931d283a.png", tab: "XC" },
+      { id: 69, name: "QRAI", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/e9f692f3-ebbb-400b-94ae-f8b3c29dfa35.png", tab: "XC" },
+      { id: 70, name: "PAS", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/3b0750af-5127-4a32-b71d-5127a5d714ca.png", tab: "XC" },
+      { id: 71, name: "QRHI", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/7b9035ad-8cc9-4f92-b004-0ddf11b08ae2.png", tab: "XC" },
+      { id: 72, name: "CHCT", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/8290e7bf-ad9c-4d52-90dc-0a55b474edda.png", tab: "XC" },
+      { id: 73, name: "FPHW", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/6ce9f15f-f766-40ab-9237-1ef6a462e979.png", tab: "XC" },
+      { id: 74, name: "AARP", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/4f698451-3e8c-4ccc-bb4b-bc41bd345483.png", tab: "XC" },
+      { id: 75, name: "GHC", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/d22fb4d6-8e87-42ea-902b-bd7571ea5069.png", tab: "XC" },
+      { id: 76, name: "EBHI", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/9566fe98-1167-4624-8e8a-411f44a24c97.png", tab: "XC" },
+      { id: 77, name: "SNHI", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/c9d6aa51-c9fb-4f22-96bd-eb36ad414065.png", tab: "XC" },
+      { id: 78, name: "YAPI", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/fd83d8a0-367b-479d-b69c-5082df3c38f8.png", tab: "XC" },
+
+      // TAB 3: GZ (#79–#100)
+      { id: 79, name: "FLI", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/f1395be8-dce3-4754-8542-5e2d42a9a6e8.png", tab: "GZ" },
+      { id: 80, name: "MEDVI", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/60b2715a-3a98-459a-9476-de93fc0150d1.png", tab: "GZ" },
+      { id: 81, name: "CSD", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/ecda3a64-6c75-4620-bf13-993df3b43b95.png", tab: "GZ" },
+      { id: 82, name: "ECC", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/3fab523a-7353-4138-ab0d-23ac050c2689.png", tab: "GZ" },
+      { id: 83, name: "FIR", url: "https://image.s1.sfmc-content.com/lib/fe25117271640474701c79/m/1/0f44087f-d52e-40f4-bee5-1def51324104.png", tab: "GZ" },
+      { id: 84, name: "CH", url: "https://image.s1.sfmc-content.com/lib/fe25117271640474701c79/m/1/34ea6b1a-016d-40bf-8177-da0c92f6a4bb.png", tab: "GZ" },
+      { id: 85, name: "AE", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/86465bb8-71df-4c69-85a0-65bdd3a850e3.png", tab: "GZ" },
+      { id: 86, name: "ARU", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/d3bbba5d-333f-4489-8bff-6d3cec2cdccc.png", tab: "GZ" },
+      { id: 87, name: "CSD", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/9d6a5c09-3edb-475c-959a-d5c8e720d2bc.png", tab: "GZ" },
+      { id: 88, name: "CRF", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/0512ed09-6f39-4c17-b944-f7890c1c48cf.png", tab: "GZ" },
+      { id: 89, name: "CDC", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/d232144e-a2ca-438c-a26d-2d8be67cfaa5.png", tab: "GZ" },
+      { id: 90, name: "LCT", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/23ca4a89-af46-4758-b430-4789d67076e6.png", tab: "GZ" },
+      { id: 91, name: "DIC", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/c3b84efd-f776-4261-a287-ef17a85b833b.png", tab: "GZ" },
+      { id: 92, name: "DMC", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/f201d795-b41f-4c69-a54e-3d1f84a7bd63.png", tab: "GZ" },
+      { id: 93, name: "EBP", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/fdec3c78-59f1-4f76-b7a2-bbebe7cb05d8.png", tab: "GZ" },
+      { id: 94, name: "FLI", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/f1395be8-dce3-4754-8542-5e2d42a9a6e8.png", tab: "GZ" },
+      { id: 95, name: "HCAKA", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/cf373b40-87ea-40c4-8259-9e2b3bc2df61.png", tab: "GZ" },
+      { id: 96, name: "HEARCOM", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/b84c64c3-9e73-4b94-9453-0e8bba2f1d46.png", tab: "GZ" },
+      { id: 97, name: "IAI", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/1326c057-8f1e-42ad-ab1a-945612aead3b.png", tab: "GZ" },
+      { id: 98, name: "IMF", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/4217f9d8-832e-4f3d-8c70-e86e75d42c2f.png", tab: "GZ" },
+      { id: 99, name: "LR", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/8f93a9d5-3b22-4018-9957-ed8524f3f6a2.png", tab: "GZ" },
+      { id: 100, name: "MDA", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/d007e7cb-f254-4da5-aae5-b335fc0cad7a.png", tab: "GZ" },
+
+      // TAB 4: ES CAMPAIGNS (#101–#125)
+      { id: 101, name: "MCS", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/c89d2ab9-5d3f-40f7-a7ed-11c71353a9c2.png", tab: "ES CAMPAIGNS" },
+      { id: 102, name: "MMC", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/fdcba707-3f20-4a0d-a0f5-d83f59f681b6.png", tab: "ES CAMPAIGNS" },
+      { id: 103, name: "NDR", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/6cf54097-29c8-4fe7-9628-bc1bf4f2ee2c.png", tab: "ES CAMPAIGNS" },
+      { id: 104, name: "RHR", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/fb346990-73ee-4b0b-995f-8854d6fec048.png", tab: "ES CAMPAIGNS" },
+      { id: 105, name: "RSA", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/624ee7e9-d0e0-4adc-b469-3292ea1dabf2.png", tab: "ES CAMPAIGNS" },
+      { id: 106, name: "RCT", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/1334683b-53dd-449d-95a0-fbc039f6a1c9.png", tab: "ES CAMPAIGNS" },
+      { id: 107, name: "IA", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/3d3aaa92-fcdd-4cd1-8d69-d8bb86198cce.png", tab: "ES CAMPAIGNS" },
+      { id: 108, name: "IMF", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/e1bfc9bd-1c2d-4c7b-b6fd-1163477475ca.png", tab: "ES CAMPAIGNS" },
+      { id: 109, name: "BCI BATH AND SHOWER", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/cd2da615-3a5a-4e47-a768-5381790effa6.png", tab: "ES CAMPAIGNS" },
+      { id: 110, name: "AFC HOME WARRANTY", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/6fb106ff-132b-479d-8538-a08373a036f8.png", tab: "ES CAMPAIGNS" },
+      { id: 111, name: "AMERICOR DEBT RELIEF", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/c95673bf-f7ac-4d97-a368-40f0e53dd28e.png", tab: "ES CAMPAIGNS" },
+      { id: 112, name: "CHOICE HOME WARRANTY", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/6a59e04c-9452-45c3-9cbc-caf07b0ae220.png", tab: "ES CAMPAIGNS" },
+      { id: 113, name: "EASY TAX RELIEF", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/1b5b27b0-695a-4079-a205-077a3facf380.png", tab: "ES CAMPAIGNS" },
+      { id: 114, name: "FIDELITY LIFE INSURANCE", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/014515b9-9290-4b5c-9ecc-880047eb2106.png", tab: "ES CAMPAIGNS" },
+      { id: 115, name: "GUARDLANE", url: "https://image.s1.sfmc-content.com/lib/fe31117271640474701574/m/1/9f647beb-e791-4e0e-be0b-08166a6abafd.png", tab: "ES CAMPAIGNS" },
+      { id: 116, name: "HOMEBUDDY ROOFING", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/2cea9cc7-4147-4899-8412-851773efa6d3.png", tab: "ES CAMPAIGNS" },
+      { id: 117, name: "HOMEBUDDY ROOFING R", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/2cea9cc7-4147-4899-8412-851773efa6d3.png", tab: "ES CAMPAIGNS" },
+      { id: 118, name: "HOMEBUDDY WALK IN SHOWER", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/2cea9cc7-4147-4899-8412-851773efa6d3.png", tab: "ES CAMPAIGNS" },
+      { id: 119, name: "HOMEBUDDY WINDOW REPLACEMENT", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/2cea9cc7-4147-4899-8412-851773efa6d3.png", tab: "ES CAMPAIGNS" },
+      { id: 120, name: "JG WENTWORTH DEBT SETTLEMENT", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/4550edb6-bb48-41a9-aef9-3bed1b2dc1d2.png", tab: "ES CAMPAIGNS" },
+      { id: 121, name: "LIZ BUYS HOUSES", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/2c03b6d2-d5f4-44b4-9b0e-1675db24f74f.png", tab: "ES CAMPAIGNS" },
+      { id: 122, name: "MRW WHITE", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/2a373728-8aee-42ee-bbd8-4cb3b59def97.png", tab: "ES CAMPAIGNS" },
+      { id: 123, name: "MRW", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/e7687a4a-5039-442b-949a-431f3e6e584e.png", tab: "ES CAMPAIGNS" },
+      { id: 124, name: "QUICKEN LOANS REFINANCE & HOME EQUITY", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/412d918b-e4fa-40ad-8e83-be880e48501b.png", tab: "ES CAMPAIGNS" },
+      { id: 125, name: "QUICKEN LOANS REFINANCE & HOME EQUITY WHITE", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/5548c95e-9294-4a3e-a4ea-5ce14c111d3d.png", tab: "ES CAMPAIGNS" },
+
+      // TAB 5: MI CAMPAIGNS (#126–#146)
+      { id: 126, name: "ROAD MASTER WARRANTY", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/f75b05ca-f435-4e10-9a70-e8d2207de7ce.png", tab: "MI CAMPAIGNS" },
+      { id: 127, name: "SBLI TERM LIFE INSURANCE", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/51dee05e-f5d8-4429-8c45-4811454116df.png", tab: "MI CAMPAIGNS" },
+      { id: 128, name: "SELECTQUOTE MEDICARE HELPLINE", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/674ed852-3c10-4470-b176-7d62fbd57e3a.png", tab: "MI CAMPAIGNS" },
+      { id: 129, name: "SERVICE PLUS HOME WARRANTY", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/0b939cbb-9cda-44c2-b01c-2a917043ae04.png", tab: "MI CAMPAIGNS" },
+      { id: 130, name: "SIMPLE DEBT SOLUTIONS", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/accf23ac-3af0-4131-b4e3-e4ed7bee1496.png", tab: "MI CAMPAIGNS" },
+      { id: 131, name: "ULTRA AUTO WARRANTY", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/a4cb14b3-525b-481f-8edb-a948bd373bc5.png", tab: "MI CAMPAIGNS" },
+      { id: 132, name: "WS", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/4f5fad13-6c57-443e-8925-fbd73a4a72c4.png", tab: "MI CAMPAIGNS" },
+      { id: 133, name: "ZIGGY BUYS HOUSES", url: "https://image.s1.sfmc-content.com/lib/fe25117271640474701c79/m/1/8d87175a-cbe5-4bde-8348-96e3477d42c8.png", tab: "MI CAMPAIGNS" },
+      { id: 134, name: "EH", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/3ffc3ba0-35e6-45f8-b902-8c43c3fda86b.png", tab: "MI CAMPAIGNS" },
+      { id: 135, name: "ET", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/03bdd2cf-c7e0-4f64-8331-bc90de124650.png", tab: "MI CAMPAIGNS" },
+      { id: 136, name: "MR", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/d5484933-4994-438f-9b7b-1da24181830b.png", tab: "MI CAMPAIGNS" },
+      { id: 137, name: "LF", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/0ffa18a5-5228-463a-8ff5-4ef84eb8537f.png", tab: "MI CAMPAIGNS" },
+      { id: 138, name: "LOWES WINDOW REPLACEMENT", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/8497b2c9-61a4-4e8c-aa45-fde945d98502.png", tab: "MI CAMPAIGNS" },
+      { id: 139, name: "CARSHIELD", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/27de52f4-6b27-4e34-9a9c-587edc3adcff.png", tab: "MI CAMPAIGNS" },
+      { id: 140, name: "PL", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/2800089f-44d2-4c38-8295-d58713e38f1b.png", tab: "MI CAMPAIGNS" },
+      { id: 141, name: "HIMSB", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/1bc4af33-e6a9-489a-ac67-2bc0188b851b.png", tab: "MI CAMPAIGNS" },
+      { id: 142, name: "CC", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/b298c721-38f9-46ba-b3d4-1a3706995384.png", tab: "MI CAMPAIGNS" },
+      { id: 143, name: "american-home-warranty", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/bebea541-82ad-402e-b78a-226f0f18a751.png", tab: "MI CAMPAIGNS" },
+      { id: 144, name: "NSP", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/83ac081f-b1a8-45f0-9d5b-662f619a8961.png", tab: "MI CAMPAIGNS" },
+      { id: 145, name: "RRUSA", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/8ca3aef0-88d9-4646-97cb-b726d65321a7.png", tab: "MI CAMPAIGNS" },
+      { id: 146, name: "WSH", url: "https://image.s12.sfmc-content.com/lib/fe2d117371640574711371/m/1/4f5fad13-6c57-443e-8925-fbd73a4a72c4.png", tab: "MI CAMPAIGNS" }
+    ];
+
+    /**
+     * The 5 configured tabs for live Google Spreadsheet fetching
+     */
+    const TARGET_TABS = ["AD CAMPAIGNS", "XC", "GZ", "ES CAMPAIGNS", "MI CAMPAIGNS"];
+
+    // Default Configuration
+    const DEFAULT_CONFIG = {
+      masterUrl: "https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit",
+      tabGids: {
+        "AD CAMPAIGNS": "",
+        "XC": "",
+        "GZ": "",
+        "ES CAMPAIGNS": "",
+        "MI CAMPAIGNS": ""
+      },
+      colName: "Name",
+      colLogoLink: "Logo Link"
+    };
+    // Sandbox-safe Storage Helpers
+    const memoryStorage = {};
+    function safeStorageGet(key, defaultVal) {
+      try {
+        const val = localStorage.getItem(key);
+        return val ? JSON.parse(val) : defaultVal;
+      } catch (e) {
+        return memoryStorage[key] !== undefined ? memoryStorage[key] : defaultVal;
+      }
+    }
+    function safeStorageSet(key, value) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch (e) {
+        memoryStorage[key] = value;
+      }
+    }
+
+    // App State
+    let activeConfig = safeStorageGet("logofinder_config_v2", DEFAULT_CONFIG);
+    let activeLogos = [...FULL_CATALOG_SEEDS];
+    let activeDataSource = "Built-in Catalog (146 Seed Logos)";
+    let isSyncing = false;
+    let lastSyncTime = null;
+    let activeModalItem = null;
+    let currentFilterTerm = "";
+    let toastTimeout = null;
+
+    // Diagnostic Per-Tab State
+    let tabDiagnostics = {};
+    TARGET_TABS.forEach(tab => {
+      tabDiagnostics[tab] = {
+        status: "Pending",
+        rowsFetched: 0,
+        validLogos: 0,
+        missingData: 0,
+        duplicates: 0,
+        error: null,
+        urlUsed: ""
+      };
+    });
+
+    // DOM Elements
+    const searchInput = document.getElementById("search-input");
+    const clearSearchBtn = document.getElementById("clear-search-btn");
+    const showAllBtn = document.getElementById("show-all-btn");
+    const logoGrid = document.getElementById("logo-grid");
+    const emptyState = document.getElementById("empty-state");
+    const emptyQueryText = document.getElementById("empty-query-text");
+    const emptyResetBtn = document.getElementById("empty-reset-btn");
+    const resultsCountText = document.getElementById("results-count-text");
+    const sourceIndicator = document.getElementById("source-indicator");
+
+    // Header Controls
+    const syncStatusBadge = document.getElementById("sync-status-badge");
+    const syncStatusDot = document.getElementById("sync-status-dot");
+    const syncStatusText = document.getElementById("sync-status-text");
+    const syncNowBtn = document.getElementById("sync-now-btn");
+    const syncIcon = document.getElementById("sync-icon");
+    const openDiagnosticsBtn = document.getElementById("open-diagnostics-btn");
+    const openSettingsBtn = document.getElementById("open-settings-btn");
+    const footerDiagnosticsBtn = document.getElementById("footer-diagnostics-btn");
+    const footerSettingsBtn = document.getElementById("footer-settings-btn");
+
+    // Modal Elements
+    const logoModal = document.getElementById("logo-modal");
+    const modalCloseBtn = document.getElementById("modal-close-btn");
+    const modalTitle = document.getElementById("modal-title");
+    const modalTabBadge = document.getElementById("modal-tab-badge");
+    const modalLogoImg = document.getElementById("modal-logo-img");
+    const modalImgFallback = document.getElementById("modal-img-fallback");
+    const modalUrlInput = document.getElementById("modal-url-input");
+    const modalQuickCopyBtn = document.getElementById("modal-quick-copy-btn");
+    const modalCopyBtn = document.getElementById("modal-copy-btn");
+    const copyBtnText = document.getElementById("copy-btn-text");
+    const modalOpenLink = document.getElementById("modal-open-link");
+    const modalDownloadBtn = document.getElementById("modal-download-btn");
+    const downloadBtnText = document.getElementById("download-btn-text");
+
+    // Diagnostics Modal Elements
+    const diagnosticsModal = document.getElementById("diagnostics-modal");
+    const diagCloseBtn = document.getElementById("diag-close-btn");
+    const diagCloseFooterBtn = document.getElementById("diag-close-footer-btn");
+    const diagSyncTrigger = document.getElementById("diag-sync-trigger");
+    const diagTotalValid = document.getElementById("diag-total-valid");
+    const diagActiveSource = document.getElementById("diag-active-source");
+    const diagDuplicatesRemoved = document.getElementById("diag-duplicates-removed");
+    const diagExcludedCount = document.getElementById("diag-excluded-count");
+    const diagTabsTableBody = document.getElementById("diag-tabs-table-body");
+    const diagConfUrl = document.getElementById("diag-conf-url");
+    const diagConfTabs = document.getElementById("diag-conf-tabs");
+    const diagLastSyncTime = document.getElementById("diag-last-sync-time");
+
+    // Settings Modal Elements
+    const settingsModal = document.getElementById("settings-modal");
+    const settingsCloseBtn = document.getElementById("settings-close-btn");
+    const settingsCancelBtn = document.getElementById("settings-cancel-btn");
+    const settingsSaveBtn = document.getElementById("settings-save-btn");
+    const settingsResetDefaults = document.getElementById("settings-reset-defaults");
+    const cfgMasterUrl = document.getElementById("cfg-master-url");
+    const cfgGidAd = document.getElementById("cfg-gid-ad");
+    const cfgGidXc = document.getElementById("cfg-gid-xc");
+    const cfgGidGz = document.getElementById("cfg-gid-gz");
+    const cfgGidEs = document.getElementById("cfg-gid-es");
+    const cfgGidMi = document.getElementById("cfg-gid-mi");
+
+    // Toast Elements
+    const toast = document.getElementById("toast");
+    const toastMessage = document.getElementById("toast-message");
+    const toastIconSuccess = document.getElementById("toast-icon-success");
+    const toastIconInfo = document.getElementById("toast-icon-info");
+    /**
+     * Escape strings to prevent HTML injection
+     */
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    /**
+     * RFC 4180 Compliant CSV Parser
+     * Correctly handles quoted values, embedded commas, newlines, and BOM markers
+     */
+    function parseCSV(text) {
+      if (!text) return [];
+      const cleanText = text.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+      const rows = [];
+      let currentRow = [];
+      let currentVal = "";
+      let inQuotes = false;
+      let i = 0;
+
+      while (i < cleanText.length) {
+        const char = cleanText[i];
+        const nextChar = cleanText[i + 1];
+
+        if (inQuotes) {
+          if (char === '"') {
+            if (nextChar === '"') {
+              currentVal += '"';
+              i += 2;
+              continue;
+            } else {
+              inQuotes = false;
+              i++;
+              continue;
+            }
+          } else {
+            currentVal += char;
+            i++;
+            continue;
+          }
+        } else {
+          if (char === '"') {
+            inQuotes = true;
+            i++;
+            continue;
+          } else if (char === ',') {
+            currentRow.push(currentVal.trim());
+            currentVal = "";
+            i++;
+            continue;
+          } else if (char === '\n') {
+            currentRow.push(currentVal.trim());
+            if (currentRow.some(c => c.length > 0)) {
+              rows.push(currentRow);
+            }
+            currentRow = [];
+            currentVal = "";
+            i++;
+            continue;
+          } else {
+            currentVal += char;
+            i++;
+            continue;
+          }
+        }
+      }
+
+      if (currentVal.length > 0 || currentRow.length > 0) {
+        currentRow.push(currentVal.trim());
+        if (currentRow.some(c => c.length > 0)) {
+          rows.push(currentRow);
+        }
+      }
+      return rows;
+    }
+
+    /**
+     * Clean cell value, extracting links from formulas like =IMAGE("https://...") or =HYPERLINK("...")
+     */
+    function cleanCellValue(val) {
+      if (!val) return "";
+      let str = String(val).replace(/[\u200B-\u200D\uFEFF]/g, "").trim();
+      const formulaMatch = str.match(/(?:IMAGE|HYPERLINK)\s*\(\s*["']([^"']+)["']/i);
+      if (formulaMatch && formulaMatch[1]) {
+        return formulaMatch[1].trim();
+      }
+      return str;
+    }
+
+    /**
+     * Get image file extension
+     */
+    function getFileExtension(url) {
+      try {
+        const clean = url.split("?")[0].split("#")[0];
+        const parts = clean.split(".");
+        if (parts.length > 1) {
+          const ext = parts.pop().toLowerCase();
+          if (["svg", "png", "jpg", "jpeg", "webp", "gif"].includes(ext)) {
+            return ext;
+          }
+        }
+      } catch (e) {}
+      return "png";
+    }
+
+    /**
+     * Display toast alert
+     */
+    function showToast(message, type = "success") {
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastMessage.textContent = message;
+      if (type === "success") {
+        toastIconSuccess.classList.remove("hidden");
+        toastIconInfo.classList.add("hidden");
+      } else {
+        toastIconSuccess.classList.add("hidden");
+        toastIconInfo.classList.remove("hidden");
+      }
+      toast.classList.remove("translate-y-12", "opacity-0", "pointer-events-none");
+      toast.classList.add("translate-y-0", "opacity-100");
+      toastTimeout = setTimeout(() => {
+        toast.classList.add("translate-y-12", "opacity-0", "pointer-events-none");
+        toast.classList.remove("translate-y-0", "opacity-100");
+      }, 2600);
+    }
+    /**
+     * Build the exact fetch URL for a specific tab
+     * Handles:
+     * 1. Direct published tab URLs or GIDs
+     * 2. Standard Google Sheets URL via named GViz export
+     */
+    function getTabFetchUrl(tabName) {
+      const customGidOrUrl = activeConfig.tabGids && activeConfig.tabGids[tabName] ? activeConfig.tabGids[tabName].trim() : "";
+      
+      // If user provided a complete URL for this specific tab
+      if (customGidOrUrl.startsWith("http://") || customGidOrUrl.startsWith("https://")) {
+        const urlObj = new URL(customGidOrUrl);
+        urlObj.searchParams.set("nocache", Date.now());
+        return urlObj.toString();
+      }
+
+      const masterUrl = (activeConfig.masterUrl || "").trim();
+
+      // Check if masterUrl is a published Google Sheet (/d/e/2PACX-.../pub)
+      if (masterUrl.includes("/pub")) {
+        try {
+          const basePub = masterUrl.split("?")[0];
+          const gid = customGidOrUrl || (tabName === "AD CAMPAIGNS" ? "0" : "");
+          if (gid) {
+            return `${basePub}?output=csv&gid=${encodeURIComponent(gid)}&single=true&nocache=${Date.now()}`;
+          }
+        } catch (e) {}
+      }
+
+      // Check for standard Google Sheet ID: /spreadsheets/d/SPREADSHEET_ID/
+      const match = masterUrl.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+      if (match && match[1]) {
+        const sheetId = match[1];
+        // If a specific GID was entered for this tab
+        if (customGidOrUrl && /^\d+$/.test(customGidOrUrl)) {
+          return `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${customGidOrUrl}&nocache=${Date.now()}`;
+        }
+        // Query by Tab Name using Google's GViz CSV endpoint
+        return `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tabName)}&t=${Date.now()}`;
+      }
+
+      return null;
+    }
+
+    /**
+     * Parse raw rows from a single tab into logo items
+     * Auto-detects columns: Name (Column B) and Logo Link (Column C), or discovers link columns
+     */
+    function parseTabRows(rows, tabName) {
+      if (!rows || rows.length === 0) {
+        return { valid: [], rowsCount: 0, missingData: 0 };
+      }
+
+      const headers = rows[0].map(h => cleanCellValue(h).toLowerCase());
+      let nameIdx = -1;
+      let urlIdx = -1;
+
+      // Match configured headers
+      headers.forEach((h, idx) => {
+        if (h === "name" || h === "company" || h === "company name") nameIdx = idx;
+        if (h === "logo link" || h === "hosted logo image url" || h === "image url" || h === "logo url") urlIdx = idx;
+      });
+
+      // Default fallback based on your sheet structure: Column A = LOGO, Column B = Name, Column C = Logo Link
+      if (nameIdx === -1 && rows[0].length >= 2) nameIdx = 1;
+      if (urlIdx === -1 && rows[0].length >= 3) urlIdx = 2;
+
+      const startIndex = (headers[nameIdx] === "name" || headers[urlIdx]?.includes("logo") || headers[0] === "logo") ? 1 : 0;
+      
+      const valid = [];
+      let missingData = 0;
+
+      for (let r = startIndex; r < rows.length; r++) {
+        const row = rows[r];
+        if (!row || row.length === 0) continue;
+
+        let name = row[nameIdx] ? cleanCellValue(row[nameIdx]) : "";
+        let url = row[urlIdx] ? cleanCellValue(row[urlIdx]) : "";
+
+        // If URL wasn't found at designated column, scan other columns for sfmc-content or http(s)
+        if (!url || !url.startsWith("http")) {
+          for (let c = 0; c < row.length; c++) {
+            const val = cleanCellValue(row[c]);
+            if (val.startsWith("http://") || val.startsWith("https://")) {
+              url = val;
+              if (c === nameIdx && row[1] && row[1] !== val) {
+                name = cleanCellValue(row[1]);
+              }
+              break;
+            }
+          }
+        }
+
+        if (name && url && (url.startsWith("http://") || url.startsWith("https://"))) {
+          valid.push({
+            name: name,
+            url: url,
+            tab: tabName
+          });
+        } else {
+          // If the row had any text but couldn't form a valid record
+          if (row.some(c => cleanCellValue(c).length > 0)) {
+            missingData++;
+          }
+        }
+      }
+
+      return {
+        valid: valid,
+        rowsCount: rows.length,
+        missingData: missingData
+      };
+    }
+    /**
+     * Fetch all 5 tabs in parallel and combine their records into one unified dataset
+     */
+    async function syncAllFiveTabs() {
+      if (isSyncing) return;
+      isSyncing = true;
+      updateSyncUI("Syncing...", "syncing");
+
+      const masterUrl = (activeConfig.masterUrl || "").trim();
+      if (!masterUrl) {
+        updateSyncUI("No Sheet URL", "failed");
+        isSyncing = false;
+        return;
+      }
+
+      const tabPromises = TARGET_TABS.map(async (tabName) => {
+        const fetchUrl = getTabFetchUrl(tabName);
+        tabDiagnostics[tabName].urlUsed = fetchUrl || "None (Config incomplete)";
+
+        if (!fetchUrl) {
+          tabDiagnostics[tabName].status = "Config Missing";
+          tabDiagnostics[tabName].error = "Could not build fetch URL for this tab.";
+          return { tab: tabName, valid: [], rowsCount: 0, missingData: 0, success: false };
+        }
+
+        try {
+          const res = await fetch(fetchUrl);
+          if (!res.ok) {
+            tabDiagnostics[tabName].status = `HTTP ${res.status}`;
+            tabDiagnostics[tabName].error = `Server returned status ${res.status}`;
+            return { tab: tabName, valid: [], rowsCount: 0, missingData: 0, success: false };
+          }
+
+          const csvText = await res.text();
+          
+          // Detect HTML auth error
+          if (csvText.includes("<html") || csvText.includes("<!DOCTYPE") || csvText.includes("ServiceLogin")) {
+            tabDiagnostics[tabName].status = "Access Denied";
+            tabDiagnostics[tabName].error = "Google returned an HTML login page. Set sheet sharing to 'Anyone with the link can view'.";
+            return { tab: tabName, valid: [], rowsCount: 0, missingData: 0, success: false };
+          }
+
+          const rows = parseCSV(csvText);
+          const parsed = parseTabRows(rows, tabName);
+
+          tabDiagnostics[tabName].status = "200 OK";
+          tabDiagnostics[tabName].rowsFetched = parsed.rowsCount;
+          tabDiagnostics[tabName].validLogos = parsed.valid.length;
+          tabDiagnostics[tabName].missingData = parsed.missingData;
+          tabDiagnostics[tabName].error = null;
+
+          return {
+            tab: tabName,
+            valid: parsed.valid,
+            rowsCount: parsed.rowsCount,
+            missingData: parsed.missingData,
+            success: true
+          };
+        } catch (err) {
+          tabDiagnostics[tabName].status = "Network Error";
+          tabDiagnostics[tabName].error = err.message || "Network request failed";
+          return { tab: tabName, valid: [], rowsCount: 0, missingData: 0, success: false };
+        }
+      });
+
+      const results = await Promise.allSettled(tabPromises);
+      
+      const combined = [];
+      let totalDuplicates = 0;
+      let successfulTabsCount = 0;
+      const seenExactPairs = new Set();
+
+      results.forEach(res => {
+        if (res.status === "fulfilled" && res.value && res.value.success) {
+          successfulTabsCount++;
+          const tabData = res.value;
+
+          tabData.valid.forEach(item => {
+            // Strict deduplication: Only remove if BOTH company name AND exact URL match
+            const uniqueKey = `${item.name.toLowerCase().trim()}:::${item.url.toLowerCase().trim()}`;
+            if (seenExactPairs.has(uniqueKey)) {
+              totalDuplicates++;
+              tabDiagnostics[item.tab].duplicates++;
+            } else {
+              seenExactPairs.add(uniqueKey);
+              combined.push(item);
+            }
+          });
+        }
+      });
+
+      lastSyncTime = new Date();
+
+      if (successfulTabsCount > 0 && combined.length > 0) {
+        // Assign sequential card numbers #1, #2, ... #N
+        combined.forEach((item, idx) => {
+          item.id = idx + 1;
+        });
+
+        activeLogos = combined;
+        activeDataSource = `Google Sheets (Live — ${successfulTabsCount} of 5 Tabs Synced)`;
+        updateSyncUI(`Synced ${formatTime(lastSyncTime)}`, "synced");
+        showToast(`Successfully synced ${combined.length} logos across ${successfulTabsCount} tabs!`, "success");
+      } else {
+        // If remote fetch failed entirely, preserve healthy dataset
+        updateSyncUI("Sync Blocked", "failed");
+        showToast("Google Sheet fetch failed. Showing catalog data.", "info");
+      }
+
+      isSyncing = false;
+      renderGallery();
+      updateDiagnosticsView(totalDuplicates);
+    }
+    function formatTime(date) {
+      if (!date) return "";
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function updateSyncUI(text, state) {
+      syncStatusText.textContent = text;
+      syncStatusBadge.className = "flex items-center space-x-2 px-2.5 sm:px-3 py-1 rounded-full border text-xs font-medium transition-colors ";
+
+      if (state === "syncing") {
+        syncStatusBadge.classList.add("bg-sky-50", "border-sky-200", "text-sky-700");
+        syncStatusDot.className = "w-2 h-2 rounded-full bg-sky-500 animate-pulse";
+        syncIcon.classList.add("spinning");
+      } else if (state === "synced") {
+        syncStatusBadge.classList.add("bg-emerald-50", "border-emerald-200", "text-emerald-700");
+        syncStatusDot.className = "w-2 h-2 rounded-full bg-emerald-500";
+        syncIcon.classList.remove("spinning");
+      } else {
+        syncStatusBadge.classList.add("bg-rose-50", "border-rose-200", "text-rose-700");
+        syncStatusDot.className = "w-2 h-2 rounded-full bg-rose-500";
+        syncIcon.classList.remove("spinning");
+      }
+    }
+
+    /**
+     * Render logo cards in the gallery
+     */
+    function renderGallery() {
+      const rawTerm = currentFilterTerm.trim();
+      const term = rawTerm.toLowerCase();
+
+      const filtered = activeLogos.filter(item => {
+        if (!term) return true;
+        if (item.name.toLowerCase().includes(term)) return true;
+        if (item.tab && item.tab.toLowerCase().includes(term)) return true;
+        const cleanNum = term.replace(/^#/, "").trim();
+        if (cleanNum && String(item.id) === cleanNum) return true;
+        return false;
+      });
+
+      // Update Results Header
+      resultsCountText.textContent = term
+        ? `Showing ${filtered.length} of ${activeLogos.length} logos`
+        : `Showing all ${activeLogos.length} logos`;
+
+      sourceIndicator.classList.remove("hidden");
+      if (activeDataSource.includes("Google Sheets")) {
+        sourceIndicator.className = "text-[11px] px-2 py-0.5 rounded-full font-medium bg-emerald-100 text-emerald-800 border border-emerald-200";
+        sourceIndicator.textContent = `${activeLogos.length} Live Records`;
+      } else {
+        sourceIndicator.className = "text-[11px] px-2 py-0.5 rounded-full font-medium bg-slate-100 text-slate-700 border border-slate-200";
+        sourceIndicator.textContent = "146 Catalog Seeds";
+      }
+
+      if (filtered.length === 0) {
+        logoGrid.innerHTML = "";
+        emptyState.classList.remove("hidden");
+        emptyQueryText.textContent = `No logos found matching "${escapeHtml(rawTerm)}". Try checking for typos or reset the search.`;
+        return;
+      }
+
+      emptyState.classList.add("hidden");
+      logoGrid.innerHTML = "";
+      const fragment = document.createDocumentFragment();
+
+      filtered.forEach((item) => {
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = "logo-card-premium text-left bg-white border border-slate-200/90 rounded-[16px] p-3 sm:p-3.5 flex flex-col justify-between focus:outline-none focus:ring-2 focus:ring-sky-500/30 group cursor-pointer w-full relative select-none shadow-sm";
+        card.setAttribute("aria-label", `View ${item.name} logo`);
+
+        const safeName = escapeHtml(item.name);
+        const safeUrl = escapeHtml(item.url);
+        const safeTab = escapeHtml(item.tab || "AD CAMPAIGNS");
+        const isWhiteVariation = safeName.toLowerCase().includes("white");
+
+        card.innerHTML = `
+          <div class="w-full flex items-center justify-between pb-2 text-[10px] text-slate-400 font-mono">
+            <span class="font-semibold text-slate-500">#${item.id}</span>
+            <span class="text-[9px] px-1.5 py-0.5 rounded-md font-sans font-medium ${isWhiteVariation ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600'}">
+              ${safeTab}
+            </span>
+          </div>
+
+          <div class="w-full h-[118px] rounded-xl ${isWhiteVariation ? 'bg-slate-950 border-slate-800' : 'checkerboard-bg border-slate-100'} border flex items-center justify-center p-3 relative overflow-hidden transition-colors">
+            <img 
+              src="${safeUrl}" 
+              alt="${safeName} logo" 
+              loading="lazy" 
+              class="max-w-full max-h-full object-contain pointer-events-none transition-transform duration-200 group-hover:scale-105"
+            />
+            <div class="hidden flex-col items-center justify-center text-slate-400 text-[10px] text-center px-1">
+              <svg class="w-6 h-6 mb-1 stroke-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+              </svg>
+              <span>Image unavailable</span>
+            </div>
+          </div>
+
+          <div class="w-full pt-2.5 text-center">
+            <p class="text-xs font-semibold text-slate-700 truncate group-hover:text-slate-950 transition-colors" title="${safeName}">
+              ${safeName}
+            </p>
+          </div>
+        `;
+
+        // Image error handling via event listener
+        const imgEl = card.querySelector("img");
+        const fallbackEl = card.querySelector(".hidden");
+        if (imgEl && fallbackEl) {
+          imgEl.addEventListener("error", () => {
+            imgEl.style.display = "none";
+            fallbackEl.classList.remove("hidden");
+            fallbackEl.classList.add("flex");
+          });
+        }
+
+        card.addEventListener("click", () => openModal(item));
+        fragment.appendChild(card);
+      });
+
+      logoGrid.appendChild(fragment);
+    }
+    /**
+     * Open Logo Detail Modal
+     */
+    function openModal(item) {
+      activeModalItem = item;
+      modalTitle.textContent = item.name;
+      modalTabBadge.textContent = item.tab || "AD CAMPAIGNS";
+      modalUrlInput.value = item.url;
+      modalOpenLink.href = item.url;
+
+      const modalImgContainer = document.getElementById("modal-img-container");
+      const isWhiteVariation = item.name.toLowerCase().includes("white");
+      if (modalImgContainer) {
+        modalImgContainer.className = isWhiteVariation
+          ? "w-full h-56 rounded-xl border border-slate-800 bg-slate-950 flex items-center justify-center p-6 relative overflow-hidden group"
+          : "w-full h-56 rounded-xl border border-slate-200/90 checkerboard-bg flex items-center justify-center p-6 relative overflow-hidden group";
+      }
+
+      modalImgFallback.classList.add("hidden");
+      modalLogoImg.classList.remove("hidden");
+      modalLogoImg.src = item.url;
+      modalLogoImg.alt = `${item.name} logo preview`;
+
+      modalLogoImg.onerror = function() {
+        modalLogoImg.classList.add("hidden");
+        modalImgFallback.classList.remove("hidden");
+      };
+
+      const ext = getFileExtension(item.url).toUpperCase();
+      downloadBtnText.textContent = `Download ${ext}`;
+      copyBtnText.textContent = "Copy Link";
+
+      logoModal.classList.remove("modal-hidden");
+      document.body.style.overflow = "hidden";
+      setTimeout(() => modalCopyBtn.focus(), 100);
+    }
+
+    function closeModal() {
+      logoModal.classList.add("modal-hidden");
+      document.body.style.overflow = "";
+      activeModalItem = null;
+    }
+
+    /**
+     * Copy to clipboard with fallback
+     */
+    function copyToClipboard(text, successMessage = "Link copied to clipboard!") {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text)
+          .then(() => showToast(successMessage, "success"))
+          .catch(() => fallbackExecCopy(text, successMessage));
+        return;
+      }
+      fallbackExecCopy(text, successMessage);
+    }
+
+    function fallbackExecCopy(text, successMessage) {
+      try {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-9999px";
+        textArea.style.top = "0";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        const successful = document.execCommand("copy");
+        document.body.removeChild(textArea);
+        if (successful) showToast(successMessage, "success");
+        else showToast("Unable to copy URL automatically", "info");
+      } catch (err) {
+        showToast("Error copying link", "info");
+      }
+    }
+
+    /**
+     * Download logo file safely
+     */
+    async function downloadActiveLogo() {
+      if (!activeModalItem) return;
+      const item = activeModalItem;
+      const ext = getFileExtension(item.url);
+      const safeFilename = `${item.name.toLowerCase().replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-")}-logo.${ext}`;
+      const originalText = downloadBtnText.textContent;
+      downloadBtnText.textContent = "Preparing...";
+
+      try {
+        const response = await fetch(item.url, { mode: "cors" });
+        if (!response.ok) throw new Error("CORS or Network error");
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = blobUrl;
+        a.download = safeFilename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+        showToast(`Downloaded ${safeFilename}`, "success");
+      } catch (err) {
+        const a = document.createElement("a");
+        a.href = item.url;
+        a.target = "_blank";
+        a.download = safeFilename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        showToast("Triggered direct logo download", "info");
+      } finally {
+        downloadBtnText.textContent = originalText;
+      }
+    }
+    /**
+     * Update the 5-Tab Diagnostics Modal View
+     */
+    function updateDiagnosticsView(duplicatesCount = 0) {
+      diagTotalValid.textContent = activeLogos.length;
+      diagActiveSource.textContent = activeDataSource;
+      diagDuplicatesRemoved.textContent = duplicatesCount;
+
+      let totalExcluded = 0;
+      diagTabsTableBody.innerHTML = "";
+
+      TARGET_TABS.forEach(tab => {
+        const d = tabDiagnostics[tab];
+        totalExcluded += d.missingData;
+
+        const row = document.createElement("tr");
+        row.className = "hover:bg-slate-50/50";
+        const isOk = d.status === "200 OK";
+
+        row.innerHTML = `
+          <td class="p-2.5 font-sans font-semibold text-slate-800">${escapeHtml(tab)}</td>
+          <td class="p-2.5">
+            <span class="px-1.5 py-0.5 rounded text-[10px] font-sans font-semibold ${isOk ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+              ${escapeHtml(d.status)}
+            </span>
+          </td>
+          <td class="p-2.5 text-slate-600">${d.rowsFetched}</td>
+          <td class="p-2.5 font-bold ${d.validLogos > 0 ? 'text-emerald-700' : 'text-slate-500'}">${d.validLogos}</td>
+          <td class="p-2.5 text-slate-500 font-sans text-[10px]">${d.error ? escapeHtml(d.error) : (d.missingData > 0 ? `${d.missingData} invalid rows` : 'None')}</td>
+        `;
+        diagTabsTableBody.appendChild(row);
+      });
+
+      diagExcludedCount.textContent = totalExcluded;
+      diagConfUrl.textContent = activeConfig.masterUrl || "None";
+      diagConfTabs.textContent = TARGET_TABS.join(", ");
+      diagLastSyncTime.textContent = lastSyncTime ? lastSyncTime.toLocaleTimeString() : "Never";
+    }
+
+    function openDiagnostics() {
+      updateDiagnosticsView();
+      diagnosticsModal.classList.remove("modal-hidden");
+      document.body.style.overflow = "hidden";
+    }
+    function closeDiagnostics() {
+      diagnosticsModal.classList.add("modal-hidden");
+      document.body.style.overflow = "";
+    }
+
+    function openSettings() {
+      cfgMasterUrl.value = activeConfig.masterUrl || "";
+      cfgGidAd.value = activeConfig.tabGids?.["AD CAMPAIGNS"] || "";
+      cfgGidXc.value = activeConfig.tabGids?.["XC"] || "";
+      cfgGidGz.value = activeConfig.tabGids?.["GZ"] || "";
+      cfgGidEs.value = activeConfig.tabGids?.["ES CAMPAIGNS"] || "";
+      cfgGidMi.value = activeConfig.tabGids?.["MI CAMPAIGNS"] || "";
+      settingsModal.classList.remove("modal-hidden");
+      document.body.style.overflow = "hidden";
+    }
+    function closeSettings() {
+      settingsModal.classList.add("modal-hidden");
+      document.body.style.overflow = "";
+    }
+
+    function saveSettings() {
+      activeConfig.masterUrl = cfgMasterUrl.value.trim();
+      activeConfig.tabGids = {
+        "AD CAMPAIGNS": cfgGidAd.value.trim(),
+        "XC": cfgGidXc.value.trim(),
+        "GZ": cfgGidGz.value.trim(),
+        "ES CAMPAIGNS": cfgGidEs.value.trim(),
+        "MI CAMPAIGNS": cfgGidMi.value.trim()
+      };
+      safeStorageSet("logofinder_config_v2", activeConfig);
+      closeSettings();
+      syncAllFiveTabs();
+    }
+
+    // Event Listeners
+    if (searchInput) {
+      searchInput.addEventListener("input", (e) => {
+        currentFilterTerm = e.target.value;
+        if (currentFilterTerm.trim().length > 0) {
+          clearSearchBtn.classList.remove("hidden");
+        } else {
+          clearSearchBtn.classList.add("hidden");
+        }
+        renderGallery();
+      });
+    }
+
+    function clearSearch() {
+      if (!searchInput) return;
+      searchInput.value = "";
+      currentFilterTerm = "";
+      clearSearchBtn.classList.add("hidden");
+      renderGallery();
+      searchInput.focus();
+    }
+
+    if (clearSearchBtn) clearSearchBtn.addEventListener("click", clearSearch);
+    if (showAllBtn) showAllBtn.addEventListener("click", clearSearch);
+    if (emptyResetBtn) emptyResetBtn.addEventListener("click", clearSearch);
+
+    if (syncNowBtn) syncNowBtn.addEventListener("click", syncAllFiveTabs);
+    if (openDiagnosticsBtn) openDiagnosticsBtn.addEventListener("click", openDiagnostics);
+    if (openSettingsBtn) openSettingsBtn.addEventListener("click", openSettings);
+    if (footerDiagnosticsBtn) footerDiagnosticsBtn.addEventListener("click", openDiagnostics);
+    if (footerSettingsBtn) footerSettingsBtn.addEventListener("click", openSettings);
+
+    if (modalCloseBtn) modalCloseBtn.addEventListener("click", closeModal);
+    if (logoModal) {
+      logoModal.addEventListener("click", (e) => {
+        if (e.target === logoModal) closeModal();
+      });
+    }
+
+    if (modalCopyBtn) {
+      modalCopyBtn.addEventListener("click", () => {
+        if (!activeModalItem) return;
+        copyToClipboard(activeModalItem.url, `Copied ${activeModalItem.name} logo link!`);
+        copyBtnText.textContent = "Copied!";
+        setTimeout(() => copyBtnText.textContent = "Copy Link", 2000);
+      });
+    }
+
+    if (modalQuickCopyBtn) {
+      modalQuickCopyBtn.addEventListener("click", () => {
+        if (!activeModalItem) return;
+        copyToClipboard(activeModalItem.url, "Logo link copied!");
+      });
+    }
+
+    if (modalDownloadBtn) modalDownloadBtn.addEventListener("click", downloadActiveLogo);
+
+    if (diagCloseBtn) diagCloseBtn.addEventListener("click", closeDiagnostics);
+    if (diagCloseFooterBtn) diagCloseFooterBtn.addEventListener("click", closeDiagnostics);
+    if (diagSyncTrigger) {
+      diagSyncTrigger.addEventListener("click", () => {
+        closeDiagnostics();
+        syncAllFiveTabs();
+      });
+    }
+
+    if (settingsCloseBtn) settingsCloseBtn.addEventListener("click", closeSettings);
+    if (settingsCancelBtn) settingsCancelBtn.addEventListener("click", closeSettings);
+    if (settingsSaveBtn) settingsSaveBtn.addEventListener("click", saveSettings);
+    if (settingsResetDefaults) {
+      settingsResetDefaults.addEventListener("click", () => {
+        activeConfig = { ...DEFAULT_CONFIG };
+        openSettings();
+      });
+    }
+
+    // Global Keyboard Shortcuts
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        if (!logoModal.classList.contains("modal-hidden")) closeModal();
+        else if (!diagnosticsModal.classList.contains("modal-hidden")) closeDiagnostics();
+        else if (!settingsModal.classList.contains("modal-hidden")) closeSettings();
+        else if (searchInput && searchInput.value.length > 0) clearSearch();
+      }
+      if (e.key === "/" && document.activeElement !== searchInput && document.activeElement !== modalUrlInput) {
+        e.preventDefault();
+        if (searchInput) {
+          searchInput.focus();
+          searchInput.select();
+        }
+      }
+    });
+
+    // Automatic 60-Second Refresh & Tab Visibility Re-sync
+    setInterval(() => {
+      syncAllFiveTabs();
+    }, 60000);
+
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) {
+        syncAllFiveTabs();
+      }
+    });
+
+    // Initialize application on load
+    window.addEventListener("DOMContentLoaded", () => {
+      renderGallery();
+      updateSyncUI("Live Sync Ready", "synced");
+      // Initial background sync across all 5 tabs
+      syncAllFiveTabs();
+    });
+  </script>
+</body>
+</html>
